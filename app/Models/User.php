@@ -19,8 +19,10 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'username',
         'email',
         'password',
+        'active'
     ];
 
     /**
@@ -41,4 +43,13 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * Get tasks
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function getTasks() {
+        return $this->hasMany('App\Models\Task', 'user_id', 'id');
+    }
 }

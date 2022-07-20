@@ -18,17 +18,17 @@
     <input type="hidden" name="rw8" value="{{ trans('random.word.8') }}">
     <div class="row justify-content-center h-100 not-selectable">
         @guest
-            <div class="col-md-6 text-center h-100 d-flex justify-content-center align-items-center">
+            <div class="col-md-6 text-center @if(is_mobile()) h-50 @else h-100 @endif d-flex justify-content-center align-items-center">
                 <span class="home-promo-text">{!! trans('homepage.promo.text') !!}</span>
             </div>
-            <div class="col-md-6 text-center h-100 d-flex justify-content-center align-items-center">
+            <div class="col-md-6 text-center @if(is_mobile()) h-50 @else h-100 @endif d-flex justify-content-center align-items-center">
                 @include('snippets.logo', ['width' => 250, 'height' => 250])
             </div>
         @endguest
         @auth
             <div class="today"></div>
             <div class="row justify-content-center h-100">
-                <div class="col-md-4 col-md-offset-4 col-xs-6 col-xs-offset-3">
+                <div class="col-lg-4 col-md-5 col-md-offset-4 col-xs-6">
                     <div class="add-control">
                         <div class="form-group has-feedback">
                             <input type="text" class="form-control add-task" placeholder="✍️{{ trans('homepage.tasks.add') }}"/>
@@ -38,7 +38,7 @@
                     <p class="no-items text-muted text-center hidden"><i class="fa fa-ban"></i></p>
                     <ul class="todo-list"></ul>
                     <div class="w-100 text-center mb-3">
-                        <a class="refresh text-decoration-none" href="javascript:void(0);">{{ trans('homepage.delete.all.tasks') }}</a>
+                        <a class="refresh text-decoration-none hidden" href="javascript:void(0);">{{ trans('homepage.delete.all.tasks') }}</a>
                     </div>
                 </div>
             </div>
@@ -55,3 +55,9 @@
     </div>
 </div>
 @endsection
+@auth
+    @section('customJS')
+        <script src="{{ asset('js/today.js') }}" defer></script>
+        <script src="{{ asset('js/tasks.js') }}" defer></script>
+    @endsection
+@endauth

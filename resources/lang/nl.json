@@ -18,7 +18,9 @@
     "homepage.tasks.add": " Toevoegen...",
     "homepage.tasks.warning": "Oeps! Vul a.u.b. een naam in",
     "homepage.delete.all.tasks": "Verwijder alle taken",
+    "Username": "Gebruikersnaam",
     "Email Address": "Emailadres",
+    "Username or E-mail": "Gebruikersnaam of E-mail",
     "Password": "Wachtwoord",
     "Confirm Password": "Wachtwoord bevestigen",
     "Remember Me": "Onthoud mij",
@@ -27,5 +29,6 @@
     "Register": "Registreren",
     "Name": "Naam",
     "Send Password Reset Link": "Verzenden",
-    "Logout": "Uitloggen"
+    "Logout": "Uitloggen",
+    "The account is inactive": "Deze gebruiker is inactief"
 }

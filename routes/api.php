@@ -16,10 +16,20 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+// Auth
+Route::middleware('auth:web')->get('/user', function (Request $request) { // auth:sanctum
     return $request->user();
 });
 
-Route::get('/tasks', function() {
-    return DB::table('tasks')->paginate(10);
-});
+// Tasks
+Route::get('/tasks', [App\Http\Controllers\Api\TaskController::class, 'tasks']);
+Route::post('/tasks/add', [App\Http\Controllers\Api\TaskController::class, 'addTask']);
+Route::post('/tasks/edit/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'editTask']);
+Route::post('/tasks/toggle/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'toggleTask']);
+Route::delete('/tasks/delete', [App\Http\Controllers\Api\TaskController::class, 'deleteTask']);
+Route::delete('/tasks/delete/all', [App\Http\Controllers\Api\TaskController::class, 'deleteAllTasks']);
+Route::post('/tasks/order', [App\Http\Controllers\Api\TaskController::class, 'orderTasks']);
+Route::get('/tasks/snippet', [App\Http\Controllers\Api\TaskController::class, 'snippet']);
+
+// Login
+// ...

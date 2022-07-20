@@ -18,7 +18,9 @@
     "homepage.tasks.add": " Add...",
     "homepage.tasks.warning": "Oops! Please, enter name item",
     "homepage.delete.all.tasks": "Delete all tasks",
+    "Username": "Username",
     "Email Address": "Email Address",
+    "Username or E-mail": "Username or E-mail",
     "Password": "Password",
     "Confirm Password": "Confirm Password",
     "Remember Me": "Remember Me",
@@ -27,5 +29,6 @@
     "Register": "Register",
     "Name": "Name",
     "Send Password Reset Link": "Send Password Reset Link",
-    "Logout": "Logout"
+    "Logout": "Logout",
+    "The account is inactive": "This user is inactive"
 }
