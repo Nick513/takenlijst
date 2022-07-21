@@ -20,6 +20,7 @@
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
         <link rel='stylesheet prefetch' href='https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.4.0/animate.min.css'>
         <link href="{{ asset('libraries/fontawesome/css/all.css') }}" rel="stylesheet">
+        <link href="{{ asset('libraries/menu/menu.min.css') }}" rel="stylesheet">
         <link href="{{ asset('css/app.css') }}" rel="stylesheet">
         @yield('customCSS')
 
@@ -86,6 +87,8 @@
         <script src="{{ asset('libraries/notify/bootstrap-notify.min.js') }}" type="text/javascript"></script>
         <script src='http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
         <script src="https://unpkg.com/scrollreveal/dist/scrollreveal.min.js"></script>
+        <script src="{{ asset('libraries/popupoverlay/jquery.popupoverlay.js') }}" type="text/javascript"></script>
+        <script src="{{ asset('libraries/menu/menu.min.js') }}" type="text/javascript"></script>
         <script src="{{ asset('js/app.js') }}"></script>
         @include('snippets.notify')
         @yield('customJS')

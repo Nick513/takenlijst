@@ -31,7 +31,6 @@ function getTasksFromDatabase() {
     var id;
     var name;
     var status;
-    var order;
 
     var noItemsElm;
     var refreshElm;
@@ -50,6 +49,7 @@ function getTasksFromDatabase() {
             rawData = data['data'];
             length = rawData.length;
 
+            // Check if length > 0
             if(length > 0) {
 
                 // Loop over raw data
@@ -57,8 +57,7 @@ function getTasksFromDatabase() {
                     id = value['identifier'];
                     name = value['name'];
                     status = value['status'];
-                    order = value['sequence'];
-                    addTask(name, order, status, true, id);
+                    addTask(name, status, true, id);
                 });
 
             } else {
@@ -76,13 +75,6 @@ function getTasksFromDatabase() {
             // error
         }
     });
-
-}
-
-// Get new order
-function getNewOrder() {
-
-    // ...
 
 }
 
@@ -154,7 +146,7 @@ function deleteTask(id, todoList, box, noItemsElm, refreshElm) {
             if(result) {
 
                 // Check if last task or not
-                if(todoList.find('li').length == 1) {
+                if(todoList.find('.task').length == 1) {
                     box.removeClass("animated flipInX").addClass("animated bounceOutLeft");
                     setTimeout(function() {
                         box.remove();
@@ -187,7 +179,7 @@ function toggleTask(li) {
 }
 
 // Add task
-function addTask(text, order, status, initialLoad = false, id = generateID()) {
+function addTask(text, status, initialLoad = false, id = generateID()) {
 
     // Set variables
     var noItemsElm;
@@ -211,7 +203,7 @@ function addTask(text, order, status, initialLoad = false, id = generateID()) {
     snippet.done(function(html) {
 
         // Set item
-        item = html.replace('__name__', text).replace('__status__', c).replace('__id__', id).replace('__id__', id);
+        item = html.replace(/__name__/gi, text).replace(/__status__/gi, c).replace(/__id__/gi, id);
 
         // Check if text is empty
         if(initialLoad) {
@@ -271,6 +263,14 @@ function addTask(text, order, status, initialLoad = false, id = generateID()) {
             }
 
         }
+
+        // Wait 0,5 sec
+        setTimeout(function(){
+
+            // Initialize menu
+            initializeMenu();
+
+        }, 500);
 
         // Set time out, and remove animation
         setTimeout(function() {
@@ -342,44 +342,49 @@ function refresh() {
 
 }
 
+// Initialize menu
+function initializeMenu() {
+
+    // Set variables
+    var menuElm;
+
+    // Fill variables
+    menuElm = $('[data-menu]');
+
+    // jQuery menu
+    menuElm.menu();
+
+    // Remove hidden
+    menuElm.removeClass("hidden");
+
+}
+
 /**
- * Task functionality
+ * Delete all tasks
  */
 (function($) {
 
     // Set variables
-    var err;
-    var todoList;
-    var noItemsElm;
     var refreshElm;
-    var addTaskElm;
-    var addTaskVal;
-    var isError;
 
     // Fill variables
-    err = $(".err");
-    todoList = $(".todo-list");
-    noItemsElm = $(".no-items");
     refreshElm = $(".refresh");
-    addTaskElm = $(".add-task");
-    isError = addTaskElm.hasClass("hidden");
-
-    // Check if not error
-    if(!isError) {
-        addTaskElm.blur(function() {
-            err.addClass("hidden");
-        });
-    }
-
-    // Handle add-btn click
-    $(".add-btn").on("click", function() {
-        addTaskVal = addTaskElm.val();
-        addTask(addTaskVal, getNewOrder());
-        addTaskElm.focus();
-    });
 
     // Refresh
     refreshElm.on("click", refresh);
+
+}(jQuery));
+
+/**
+ * Toggle task
+ */
+(function($) {
+
+    // Set variables
+    var todoList;
+
+    // Fill variables
+    todoList = $(".todo-list");
 
     // Handle checkbox click (Done toggle)
     todoList.on("click", 'input[type="checkbox"]', function() {
@@ -392,6 +397,19 @@ function refresh() {
 
     });
 
+}(jQuery));
+
+/**
+ * Double click task
+ */
+(function($) {
+
+    // Set variables
+    var todoList;
+
+    // Fill variables
+    todoList = $(".todo-list");
+
     // Handle checkbox click (Done toggle)
     todoList.on("dblclick", '.task', function() {
 
@@ -403,16 +421,70 @@ function refresh() {
 
     });
 
+}(jQuery));
+
+/**
+ * Delete task
+ */
+(function($) {
+
+    // Set variables
+    var todoList;
+    var noItemsElm;
+    var refreshElm;
+
+    // Fill variables
+    todoList = $(".todo-list");
+    noItemsElm = $(".no-items");
+    refreshElm = $(".refresh");
+
     // Handle close click (Remove task)
-    todoList.on("click", ".close", function() {
+    todoList.on("click", "[data-delete]", function() {
 
         // Get box
-        var box = $(this).parent().parent();
+        var box = $(this).closest('.task');
 
         // Delete task
         deleteTask(box.data().id, todoList, box, noItemsElm, refreshElm);
 
     });
+
+}(jQuery));
+
+/**
+ * Add task using add button
+ */
+(function($) {
+
+    // Set variables
+    var addTaskElm;
+    var addTaskVal;
+    var addButton;
+
+    // Fill variables
+    addTaskElm = $(".add-task");
+    addButton = $(".add-btn");
+
+    // Handle add-btn click
+    addButton.on("click", function() {
+        addTaskVal = addTaskElm.val();
+        addTask(addTaskVal);
+        addTaskElm.focus();
+    });
+
+}(jQuery));
+
+/**
+ * Add task using enter key
+ */
+(function($) {
+
+    // Set variables
+    var addTaskElm;
+    var addTaskVal;
+
+    // Fill variables
+    addTaskElm = $(".add-task");
 
     // Handle pressing enter for adding new task
     addTaskElm.keypress(function(e) {
@@ -424,13 +496,62 @@ function refresh() {
             addTaskVal = $(this).val();
 
             // Add task
-            addTask(addTaskVal, getNewOrder());
+            addTask(addTaskVal);
 
         }
 
     });
 
-    // Sort list
+}(jQuery));
+
+/**
+ * Edit task
+ */
+(function($) {
+
+    // Set variables
+    var $this;
+
+    // On click
+    $(document).on("click", ".task .edit", function(e){
+
+        // Get $this
+        $this = $(e.target);
+
+        console.log($this);
+
+    });
+
+}(jQuery));
+
+/**
+ * Disable selection
+ */
+(function($) {
+
+    // Set variables
+    var todoList;
+
+    // Fill variables
+    todoList = $(".todo-list");
+
+    // Disable selection
+    todoList.disableSelection();
+
+}(jQuery));
+
+/**
+ * Sort list
+ */
+(function($) {
+
+    // Set variables
+    var todoList;
+
+    // Fill variables
+    todoList = $(".todo-list");
+
+    // Sortable
     $(todoList).sortable({
         update: function( event, ui ) {
 
@@ -444,7 +565,7 @@ function refresh() {
             // Fill variables
             item = ui.item;
             identifier = item.attr('data-id');
-            nodes = Array.from( todoList[0].children );
+            nodes = Array.from(todoList[0].children);
             idx = nodes.indexOf(item[0]);
             data = $(this).sortable('serialize');
 
@@ -476,47 +597,14 @@ function refresh() {
         }
     });
 
-    // Disable selection
-    todoList.disableSelection();
+}(jQuery));
+
+/**
+ * Load tasks from DB
+ */
+(function($) {
 
     // Get tasks from Database
     getTasksFromDatabase();
-
-    /*
-    var options = {
-        title: '',
-        message: 'Taak verwijderd!',
-        icon: 'fas fa-times',
-        target: "_blank"
-    };
-
-    var settings = {
-        element: 'body',
-        type: 'danger',
-        position: 'fixed',
-        placement: {
-            from: "top",
-            align: "left"
-        },
-        z_index: 10000,
-        delay: 999999,
-        url_target: '_blank',
-        animate: {
-            enter: "animated fadeInDown",
-            exit: "animated fadeOutUp"
-        },
-        template: '<div data-notify="container" class="col-xs-11 col-sm-2 alert alert-{0}" role="alert">' +
-        '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +
-        '<span data-notify="icon"></span> ' +
-        '<span data-notify="title">{1}</span> ' +
-        '<span data-notify="message">{2}</span>' +
-        '<div class="progress" data-notify="progressbar">' +
-        '<div class="progress-bar progress-bar-{0}" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%;"></div>' +
-        '</div>' +
-        '<a href="{3}" target="{4}" data-notify="url"></a>' +
-        '</div>'
-    };
-    $.notify(options, settings);
-    */
 
 }(jQuery));

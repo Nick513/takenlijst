@@ -27,7 +27,7 @@ class TaskController extends Controller
     {
 
         // Set tasks
-        $tasks = [];
+        $tasks = '{}';
 
         // Get user
         $user = Auth::user();
@@ -65,30 +65,35 @@ class TaskController extends Controller
         // Check if user is authenticated
         if(Auth::check()) {
 
-            // Get user
-            $user = Auth::user();
+            // Check if postData is not empty
+            if(!empty($postData) && array_key_exists('name', $postData) && array_key_exists('status', $postData) && array_key_exists('identifier', $postData)) {
 
-            // Create new task
-            $task = new Task();
+                // Get user
+                $user = Auth::user();
 
-            // Get last sequence
-            $lastSequence = Task::query()->where('user_id', $user['id'])->orderBy('sequence', 'DESC')->first();
+                // Create new task
+                $task = new Task();
 
-            // Fill task
-            $task->fill([
-                'user_id' => $user['id'],
-                'name' => $postData['name'],
-                'description' => '...',
-                'status' => $postData['status'],
-                'identifier' => $postData['identifier'],
-                'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
-            ]);
+                // Get last sequence
+                $lastSequence = Task::query()->where('user_id', $user['id'])->orderBy('sequence', 'DESC')->first();
 
-            // Save task
-            $task->save();
+                // Fill task
+                $task->fill([
+                    'user_id' => $user['id'],
+                    'name' => $postData['name'],
+                    'description' => '...',
+                    'status' => $postData['status'],
+                    'identifier' => $postData['identifier'],
+                    'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
+                ]);
 
-            // Set success
-            $success = true;
+                // Save task
+                $task->save();
+
+                // Set success
+                $success = true;
+
+            }
 
         }
 
@@ -141,23 +146,33 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Get toggle
-        $toggle = $postData['toggle'];
+        // Check if postData is not empty
+        if(!empty($postData) && array_key_exists('toggle', $postData)) {
 
-        // Get status
-        $status = $toggle === 'true' ? 'new' : 'done';
+            // Get toggle
+            $toggle = $postData['toggle'];
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+            // Get status
+            $status = $toggle === 'true' ? 'new' : 'done';
 
-            // Get task by identifier
-            $instance = Task::query()->where('identifier', $identifier)->first();
+            // Check if user is authenticated
+            if(Auth::check()) {
 
-            // Update task
-            Task::query()->where('id', $instance['id'])->update(['status' => $status]);
+                // Get task by identifier
+                $instance = Task::query()->where('identifier', $identifier)->first();
 
-            // Set success
-            $success = true;
+                // Check if instance is instance of Task model
+                if($instance instanceof Task) {
+
+                    // Update task
+                    Task::query()->where('id', $instance['id'])->update(['status' => $status]);
+
+                    // Set success
+                    $success = true;
+
+                }
+
+            }
 
         }
 
@@ -297,16 +312,27 @@ class TaskController extends Controller
         // Get query parameters
         $queryParams = $request->query->all();
 
-        // Check if empty or not
-        if(array_key_exists('empty', $queryParams) && $queryParams['empty'] === "true") {
+        // Check if query params is not empty
+        if(!empty($queryParams)) {
 
-            // Return view
-            return view('snippets.empty');
+            // Check if empty or not
+            if(array_key_exists('empty', $queryParams) && $queryParams['empty'] === "true") {
+
+                // Return view
+                return view('snippets.empty');
+
+            } else if(array_key_exists('id', $queryParams) && array_key_exists('status', $queryParams) && array_key_exists('name', $queryParams)) {
+
+                // Return view
+                return view('snippets.task', ['id' => $queryParams['id'], 'status' => $queryParams['status'], 'name' => $queryParams['name']]);
+
+            }
 
         }
 
-        // Return view
-        return view('snippets.task', ['id' => $queryParams['id'], 'status' => $queryParams['status'], 'name' => $queryParams['name']]);
+        // Return JSON response
+        return response('{}', 200)
+            ->header('Content-Type', 'application/json');
 
     }
 }

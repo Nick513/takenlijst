@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\Auth;
 |
 */
 
+// Authentication
 Auth::routes();
+Route::get('/activate/{code}', [App\Http\Controllers\Auth\RegisterController::class, 'activate'])->name('activate');
 
+// Home
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');

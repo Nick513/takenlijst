@@ -12,30 +12,30 @@ body {
     font-size: 13px;
 }
 .todo-list {
-    margin: 20px 0;
+    margin: 10px 0 20px 0;
 }
-.todo-list li {
+.todo-list .task {
     background: #fff;
     border-radius: 5px;
     margin-bottom: 7px;
     position: relative;
     word-break: break-word;
 }
-.todo-list li.danger {
+.todo-list .task.danger {
     background: rgb(17, 24, 100);
 }
-.todo-list li.danger label {
+.todo-list .task.danger label {
     text-decoration: line-through;
     color: #fff;
 }
-.todo-list li.danger label .checkbox-mask {
+.todo-list .task.danger label .checkbox-mask {
     border-color: transparent;
 }
-.todo-list li label .checkbox-mask:hover,
-.todo-list li label input[type='checkbox']:hover {
+.todo-list .task label .checkbox-mask:hover,
+.todo-list .task label input[type='checkbox']:hover {
     cursor: pointer;
 }
-.todo-list li.danger label .checkbox-mask:after {
+.todo-list .task.danger label .checkbox-mask:after {
     content: '\f00c';
     font-family: 'FontAwesome';
     display: block;
@@ -43,22 +43,22 @@ body {
     top: -3px;
     left: 0;
 }
-.todo-list li .checkbox {
+.todo-list .task .checkbox {
     margin: 0;
     padding: 10px 15px;
     border-radius: 5px;
 }
-.todo-list li label {
+.todo-list .task label {
     color: black;
     display: block;
     padding-right: 10px;
     width: fit-content;
 }
-.todo-list li label input[type="checkbox"] {
+.todo-list .task label input[type="checkbox"] {
     visibility: hidden;
     margin-right: 4px;
 }
-.todo-list li label .checkbox-mask {
+.todo-list .task label .checkbox-mask {
     display: block;
     border: 2px solid #666;
     width: 12px;
@@ -68,7 +68,7 @@ body {
     margin-left: -4px;
     margin-top: 4px;
 }
-.todo-list li .close {
+.todo-list .task .close {
     display: none;
     position: absolute;
     width: 12px;
@@ -78,7 +78,7 @@ body {
     right: 10px;
     font-size: 16px;
 }
-.todo-list li .edit {
+.todo-list .task .edit {
     display: none;
     position: absolute;
     width: 12px;
@@ -88,18 +88,31 @@ body {
     right: 32px;
     font-size: 15px;
 }
-.todo-list li .close .fa,
-.todo-list li .edit .fa {
+.todo-list .task .options {
+    display: none;
+    position: absolute;
+    width: 12px;
+    height: 16px;
+    top: 50%;
+    margin-top: -9px;
+    right: 10px;
+    font-size: 16px;
+}
+.todo-list .task .close .fa,
+.todo-list .task .edit .fa,
+.todo-list .task .options .fa {
     line-height: 16px;
     margin-top: 1px;
     display: block;
 }
-.todo-list li .close .fa:hover,
-.todo-list li .edit .fa:hover {
+.todo-list .task .close .fa:hover,
+.todo-list .task .edit .fa:hover,
+.todo-list .task .options .fa:hover {
     cursor: pointer;
 }
-.todo-list li:hover .close,
-.todo-list li:hover .edit {
+.todo-list .task:hover .close,
+.todo-list .task:hover .edit,
+.todo-list .task:hover .options {
     display: block;
 }
 .has-feedback .fa {
@@ -259,10 +272,17 @@ li.task .fa-pencil:before {
     content: "\f044";
     color: #000;
 }
+li.task .fa-ellipsis-vertical:before {
+    content: "\f142";
+    color: #000;
+}
 li.task.danger .fa-remove:before, li.task.danger .fa-close:before, li.task.danger .fa-times:before {
     color: white;
 }
 li.task.danger .fa-pencil:before {
+    color: white;
+}
+li.task.danger .fa-ellipsis-vertical:before {
     color: white;
 }
 @media (max-width: 768px){
@@ -358,7 +378,7 @@ main {
 .hidden {
     display: none;
 }
-.todo-list li {
+.todo-list .task {
     list-style-type: none!important;
 }
 ol, ul {
@@ -436,4 +456,30 @@ div[data-notify] .close {
     color: black;
     cursor: pointer;
     text-decoration: none;
+}
+.menu {
+    right: 8px!important;
+    top: 8px!important;
+}
+.menu li:hover {
+    cursor: pointer;
+}
+.menu .option p {
+    margin: 0!important;
+    font-size: unset!important;
+    font-weight: unset!important;
+    color: unset!important;
+}
+.menu .option div * {
+    display: inline-block;
+    color: black!important;
+}
+.menu .option div {
+    padding: 0 8px;
+}
+.task .menu .fa-pencil:before {
+    color: #000;
+}
+.task.danger .menu .fa-pencil:before {
+    color: #000;
 }

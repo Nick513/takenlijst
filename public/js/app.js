@@ -26,8 +26,8 @@ function notify(title, message, icon, type) {
         delay: 5000,
         url_target: '_blank',
         animate: {
-            enter: "animate__animated animate__backInLeft",
-            exit: "animate__animated animate__backOutLeft"
+            enter: "animated fadeInDown",
+            exit: "animated fadeOutUp"
         },
         template: ' <div data-notify="container" class="col-xs-11 col-sm-2 alert alert-{0}" role="alert">' +
             '<button type="button" aria-hidden="true" class="close" data-notify="dismiss">×</button>' +

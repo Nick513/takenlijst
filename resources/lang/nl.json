@@ -1,4 +1,6 @@
 {
+    "general.edit": "Wijzigen",
+    "general.delete": "Verwijderen",
     "general.monday": "Maandag",
     "general.tuesday": "Dinsdag",
     "general.wednesday": "Woensdag",
@@ -18,6 +20,12 @@
     "homepage.tasks.add": " Toevoegen...",
     "homepage.tasks.warning": "Oeps! Vul a.u.b. een naam in",
     "homepage.delete.all.tasks": "Verwijder alle taken",
+    "registration.email.send": "Email verzonden",
+    "registration.email.title": "Beste :name",
+    "registration.email.content": "Klik <a href=':url'>hier</a> om je account te activeren.",
+    "registration.account.activated": "Account geactiveerd",
+    "registration.account.already.activated": "Account is al geactiveerd",
+    "registration.account.not.found": "Ongeldige code",
     "Username": "Gebruikersnaam",
     "Email Address": "Emailadres",
     "Username or E-mail": "Gebruikersnaam of E-mail",
@@ -30,5 +38,6 @@
     "Name": "Naam",
     "Send Password Reset Link": "Verzenden",
     "Logout": "Uitloggen",
-    "The account is inactive": "Deze gebruiker is inactief"
+    "The account is inactive": "Deze gebruiker is inactief",
+    "Please enter a valid email address": "Vul a.u.b. een geldig emailadres in"
 }

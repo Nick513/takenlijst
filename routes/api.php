@@ -30,6 +30,3 @@ Route::delete('/tasks/delete', [App\Http\Controllers\Api\TaskController::class, 
 Route::delete('/tasks/delete/all', [App\Http\Controllers\Api\TaskController::class, 'deleteAllTasks']);
 Route::post('/tasks/order', [App\Http\Controllers\Api\TaskController::class, 'orderTasks']);
 Route::get('/tasks/snippet', [App\Http\Controllers\Api\TaskController::class, 'snippet']);
-
-// Login
-// ...
