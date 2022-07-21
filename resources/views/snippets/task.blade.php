@@ -1,10 +1,10 @@
-<li data-id="{{ $id }}" id="task_{{ $id }}" class="task animated flipInX @if($status === 'done') {{ $status }} @endif">
+<li data-id="{{ $id }}" data-name="{{ $name }}" data-description="{{ $description }}" data-status="{{ $status }}" id="task_{{ $id }}" class="task @if($status === 'done') danger @endif">
     <div class="checkbox">
         <a href="javascript:;" class="toggle options decoration-none" id="menu-toggle{{ $id }}">
             <i class="fa fa-solid fa-ellipsis-vertical"></i>
         </a>
         <ul class="menu hidden" data-menu data-menu-toggle="#menu-toggle{{ $id }}">
-            <li class="option">
+            <li class="option" data-edit>
                 <div>
                     <i class="fa fa-pencil" title="{{ __('general.edit') }}" aria-hidden="true"></i>
                     <p>{{ __('general.edit') }}</p>

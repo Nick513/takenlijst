@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="nl">
     <head>
-        <title>Account activeren</title>
+        <title>{{ __('email.activate.title') }}</title>
     </head>
     <body>
         <h2>{!! $details['title'] !!}</h2>

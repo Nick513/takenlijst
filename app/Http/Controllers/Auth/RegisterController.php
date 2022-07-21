@@ -111,12 +111,12 @@ class RegisterController extends Controller
 
         // Send email
         Mail::to($data['email'])->send(new ActivateEmail([
-            'title' => __('registration.email.title', ['name' => $data['name']]),
-            'body' => __('registration.email.content', ['url' => Config::get('app.external_url') . '/activate/' . $activationCode])
+            'title' => __('page.registration.email.title', ['name' => $data['name']]),
+            'body' => __('page.registration.email.content', ['url' => Config::get('app.external_url') . '/activate/' . $activationCode])
         ]));
 
         // Notify
-        $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('registration.email.send'), "type" => 'success'));
+        $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('page.registration.email.send'), "type" => 'success'));
 
         // Throw exception
         throw new AuthenticationException();
@@ -139,7 +139,7 @@ class RegisterController extends Controller
             if($user['active'] === 1) {
 
                 // Notify
-                $this->request->session()->flash('notify', array("icon" => 'fas fa-times', "message" => __('registration.account.already.activated'), "type" => 'danger'));
+                $this->request->session()->flash('notify', array("icon" => 'fas fa-times', "message" => __('page.registration.account.already.activated'), "type" => 'danger'));
 
             } else {
 
@@ -147,14 +147,14 @@ class RegisterController extends Controller
                 $user->update(['active' => 1]);
 
                 // Notify
-                $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('registration.account.activated'), "type" => 'success'));
+                $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('page.registration.account.activated'), "type" => 'success'));
 
             }
 
         } else {
 
             // Notify
-            $this->request->session()->flash('notify', array("icon" => 'fas fa-times', "message" => __('registration.account.not.found'), "type" => 'danger'));
+            $this->request->session()->flash('notify', array("icon" => 'fas fa-times', "message" => __('page.registration.account.not.found'), "type" => 'danger'));
 
         }
 

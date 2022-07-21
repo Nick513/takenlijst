@@ -23,6 +23,7 @@ Route::middleware('auth:web')->get('/user', function (Request $request) { // aut
 
 // Tasks
 Route::get('/tasks', [App\Http\Controllers\Api\TaskController::class, 'tasks']);
+Route::get('/tasks/links', [App\Http\Controllers\Api\TaskController::class, 'links']);
 Route::post('/tasks/add', [App\Http\Controllers\Api\TaskController::class, 'addTask']);
 Route::post('/tasks/edit/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'editTask']);
 Route::post('/tasks/toggle/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'toggleTask']);

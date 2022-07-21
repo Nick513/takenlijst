@@ -38,15 +38,39 @@ class TaskController extends Controller
             // Get all tasks (using authentication)
             $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate(10);
 
-        } else {
-
-            // Get all tasks (public)
-            // $tasks = DB::table('tasks')->paginate(10);
-
         }
 
         // Return tasks
         return $tasks;
+
+    }
+
+    /**
+     * Get pagination links HTML
+     *
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
+     */
+    public function links()
+    {
+
+        // Set tasks
+        $tasks = [];
+
+        // Get user
+        $user = Auth::user();
+
+        // Check if user is authenticated
+        if(Auth::check()) {
+
+            // Get all tasks (using authentication)
+            $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate(10);
+
+        }
+
+        // Return view
+        return view('snippets.pagination', [
+            'tasks' => $tasks,
+        ]);
 
     }
 
@@ -57,7 +81,10 @@ class TaskController extends Controller
     {
 
         // Set default success
-        $success = false;
+        $success = [
+            'result' => false,
+            'max' => 0
+        ];
 
         // Get post data
         $postData = $request->request->all();
@@ -81,7 +108,7 @@ class TaskController extends Controller
                 $task->fill([
                     'user_id' => $user['id'],
                     'name' => $postData['name'],
-                    'description' => '...',
+                    'description' => '',
                     'status' => $postData['status'],
                     'identifier' => $postData['identifier'],
                     'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
@@ -91,7 +118,10 @@ class TaskController extends Controller
                 $task->save();
 
                 // Set success
-                $success = true;
+                $success = [
+                    'result' => true,
+                    'max' => count(Task::query()->where('user_id', $user['id'])->get()),
+                ];
 
             }
 
@@ -109,8 +139,6 @@ class TaskController extends Controller
     public function editTask($identifier, Request $request)
     {
 
-        dd($identifier);
-
         // Set default success
         $success = false;
 
@@ -123,8 +151,22 @@ class TaskController extends Controller
             // Get user
             $user = Auth::user();
 
-            // Set success
-            $success = true;
+            // Get task
+            $task = Task::query()->where('identifier', $identifier)->first();
+
+            // Check if user is allowed to edit this task
+            if($task instanceof Task && $task['user_id'] === $user['id']) {
+
+                // Update task
+                Task::query()->where('id', $task['id'])->update($postData);
+
+                // Notify
+                $request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('page.homepage.tasks.edit.success'), "type" => 'success'));
+
+                // Set success
+                $success = true;
+
+            }
 
         }
 
@@ -158,11 +200,14 @@ class TaskController extends Controller
             // Check if user is authenticated
             if(Auth::check()) {
 
+                // Get user
+                $user = Auth::user();
+
                 // Get task by identifier
                 $instance = Task::query()->where('identifier', $identifier)->first();
 
                 // Check if instance is instance of Task model
-                if($instance instanceof Task) {
+                if($instance instanceof Task && $instance['user_id'] === $user['id']) {
 
                     // Update task
                     Task::query()->where('id', $instance['id'])->update(['status' => $status]);
@@ -268,9 +313,6 @@ class TaskController extends Controller
 
         // Check if user is authenticated
         if(Auth::check()) {
-
-            // Get user
-            $user = Auth::user();
 
             // Get tasks from request
             $tasks = $postData['task'];

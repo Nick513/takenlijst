@@ -81,12 +81,15 @@
             </main>
         </div>
 
+        <!-- Contains all popups loaded in DOM using JS -->
+        <div class="pcontainer"></div>
+
         <!-- Scripts -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
         <script src="{{ asset('js/jquery.js') }}"></script>
         <script src="{{ asset('libraries/notify/bootstrap-notify.min.js') }}" type="text/javascript"></script>
         <script src='http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js'></script>
-        <script src="https://unpkg.com/scrollreveal/dist/scrollreveal.min.js"></script>
+        <script src="{{ asset('libraries/scrollreveal/scrollreveal.min.js') }}" type="text/javascript"></script>
         <script src="{{ asset('libraries/popupoverlay/jquery.popupoverlay.js') }}" type="text/javascript"></script>
         <script src="{{ asset('libraries/menu/menu.min.js') }}" type="text/javascript"></script>
         <script src="{{ asset('js/app.js') }}"></script>

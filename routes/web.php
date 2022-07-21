@@ -20,3 +20,6 @@ Route::get('/activate/{code}', [App\Http\Controllers\Auth\RegisterController::cl
 
 // Home
 Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+// Modal
+Route::get('/modal', [App\Http\Controllers\Modal\ModalController::class, 'load'])->name('load');

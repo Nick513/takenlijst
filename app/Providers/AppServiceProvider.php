@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
 
@@ -24,6 +25,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+
+        // Use bootstrap in combination with Paginator
+        Paginator::useBootstrap();
 
         // Directive to check if device is mobile or not
         Blade::directive('is_mobile', function() {

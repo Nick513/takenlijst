@@ -1,10 +1,10 @@
-<li data-id="__id__" id="task___id__" class="task animated flipInX __status__">
+<li data-id="__id__" data-name="__name__" data-description="__description__" data-status="__rs__" id="task___id__" class="task animated flipInX __status__">
     <div class="checkbox">
         <a href="javascript:;" class="toggle options decoration-none" id="menu-toggle__id__">
             <i class="fa fa-solid fa-ellipsis-vertical"></i>
         </a>
         <ul class="menu hidden" data-menu data-menu-toggle="#menu-toggle__id__">
-            <li class="option">
+            <li class="option" data-edit>
                 <div>
                     <i class="fa fa-pencil" title="{{ __('general.edit') }}" aria-hidden="true"></i>
                     <p>{{ __('general.edit') }}</p>
