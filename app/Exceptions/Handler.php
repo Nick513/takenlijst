@@ -4,6 +4,7 @@ namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use Illuminate\Auth\AuthenticationException;
 
 class Handler extends ExceptionHandler
 {
@@ -37,5 +38,27 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+
+    /**
+     * Handle unauthenticated exceptions
+     *
+     * @param $request
+     * @param AuthenticationException $ex
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
+     */
+    protected function unauthenticated($request, AuthenticationException $ex){
+
+        // Check if route starts with api/* wildcard
+        if($request->is('api/*') ) {
+
+            // Return JSON if not authenticated
+            return response()->json(['success' => false, 'message' => $ex->getMessage()], 401);
+
+        }
+
+        // For normal routes, redirect to login page
+        return redirect('/login');
+
     }
 }

@@ -3,11 +3,13 @@
  */
 var snippet;
 var mloaded;
+var activePopup;
 
 /**
  * Fill global variables
  */
 mloaded = false;
+activePopup = false;
 
 /**
  * Fill global variables
@@ -27,6 +29,23 @@ snippet = $.ajax({
 /**
  * Functions
  */
+
+// Get URL parameter
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = window.location.search.substring(1),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : decodeURIComponent(sParameterName[1]);
+        }
+    }
+    return false;
+};
 
 // Get tasks from database
 function getTasksFromDatabase() {
@@ -171,11 +190,13 @@ function deleteTask(id, todoList, task, noItemsElm, refreshElm) {
                     }, 500);
                 }
 
+            } else {
+                // Something went wrong...
             }
 
         },
         error: function(request,error) {
-            // Error
+            // Something went wrong...
         }
     });
 
@@ -202,6 +223,9 @@ function addTask(text, description, status, initialLoad = false, id = generateID
 
     var c;
     var item;
+
+    var currentPage;
+    var url;
 
     // Fill variables
     noItemsElm = $(".no-items");
@@ -255,36 +279,44 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                     success: function(result) {
 
                         // Check if result is true
-                        if(result['result']) {
+                        if(result['success']) {
 
                             // Set max
                             maxim = result['max']-1;
 
-                            // Empty placeholder
-                            if(Number.isSafeInteger(maxim/10)) {
+                            // Check if maxim modulus amount equals to 0
+                            // if(Number.isSafeInteger(maxim/result['amount'])) {
+                            if(maxim % result['amount'] === 0) {
+
+                                // Empty pagination placeholder
                                 pplaceholder.empty();
+
+                                // Check if pagination is 0
+                                if(pplaceholder.find('ul.pagination').length === 0) {
+
+                                    // Get searchParams
+                                    currentPage = getUrlParameter('page');
+                                    url = currentPage !== false ? '/api/tasks/links?page=' + currentPage : '/api/tasks/links';
+
+                                    // Ajax call
+                                    $.ajax({
+                                        url: url,
+                                        type: 'GET',
+                                        success: function(html) {
+                                            pplaceholder.empty();
+                                            pplaceholder.append(html);
+                                        },
+                                        error: function(request,error) {
+                                            // Error
+                                        }
+                                    });
+
+                                }
+
                             }
 
-                            // Check if amount of tasks is 10
-                            if(Number.isSafeInteger(maxim/10) && pplaceholder.find('ul.pagination').length === 0) {
-
-                                // Ajax call
-                                $.ajax({
-                                    url: '/api/tasks/links',
-                                    type: 'GET',
-                                    success: function(html) {
-                                        pplaceholder.empty();
-                                        pplaceholder.append(html);
-                                    },
-                                    error: function(request,error) {
-                                        // Error
-                                    }
-                                });
-
-                            }
-
-                            // Check if amount of tasks is 10 or higher
-                            if(todoListElm.find(".task").length < 10) {
+                            // Check if amount of tasks is amount or higher
+                            if(todoListElm.find(".task").length < result['amount']) {
 
                                 // Append item
                                 todoListElm.append(item);
@@ -622,8 +654,18 @@ function initializeMenu() {
                 // Append to DOM
                 pContainer.append(html);
 
-                // Show popup
-                $(".popup[data-id='" + task.attr("data-id") + "']").popup("show");
+                // Create active popup
+                activePopup = $(".popup[data-id='" + task.attr("data-id") + "']").popup({
+                    onclose: function() {
+                        activePopup.popup("hide");
+                        activePopup.parent().prev().remove();
+                        activePopup.parent().remove();
+                        activePopup = false;
+                    }
+                });
+
+                // Show active popup
+                activePopup.popup("show");
 
             },
             error: function(request,error) {
@@ -643,11 +685,9 @@ function initializeMenu() {
     // Set variables
     var closeBtn;
     var $this;
-    var pContainer;
 
     // Fill variables
     closeBtn = $(".closePopup");
-    pContainer = $(".pcontainer");
 
     // On click
     $(document).on("click", closeBtn, function(e) {
@@ -659,10 +699,7 @@ function initializeMenu() {
         if($this.hasClass("closePopup")) {
 
             // Close popup
-            $this.closest('.popup').popup("hide");
-
-            // Empty pContainer
-            pContainer.empty();
+            activePopup.popup("hide");
 
         }
 
@@ -683,11 +720,9 @@ function initializeMenu() {
     var name;
     var description;
     var status;
-    var pContainer;
 
     // Fill variables
     saveBtn = $(".savePopup");
-    pContainer = $(".pcontainer");
 
     // On click
     $(document).on("click", saveBtn, function(e) {
@@ -722,10 +757,7 @@ function initializeMenu() {
                     } else {
 
                         // Close popup
-                        $this.closest('.popup').popup("hide");
-
-                        // Empty pContainer
-                        pContainer.empty();
+                        activePopup.popup("hide");
 
                         // Notify
                         notify('', $("[name='task_edit_failed']").val(), 'fas fa-times', 'danger');

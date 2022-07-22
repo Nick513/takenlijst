@@ -45,3 +45,58 @@ function notify(title, message, icon, type) {
     $.notify(options, settings);
 
 }
+
+/**
+ * Bootstrap activate tabs
+ */
+(function($) {
+
+    // Get triggerTabList
+    var triggerTabList = [].slice.call(document.querySelectorAll('.nav-tabs a'));
+
+    // Loop over triggerTabList
+    triggerTabList.forEach(function (triggerEl) {
+        var tabTrigger = new bootstrap.Tab(triggerEl);
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault();
+            tabTrigger.show();
+        });
+    });
+
+}(jQuery));
+
+/**
+ * Update amount of tasks
+ */
+(function($) {
+
+    // Set variables
+    var amountOfTasks;
+    var selected;
+
+    // Fill variables
+    amountOfTasks = $("select[name='amountOfTasks']");
+
+    // On change
+    amountOfTasks.on("change", function(){
+
+        // Get selected
+        selected = $(this).val();
+
+        // Ajax call
+        $.ajax({
+            url: '/api/user/update/amountoftasks',
+            type: 'POST',
+            data: { amount: selected },
+            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            success: function(result) {
+                // Success
+            },
+            error: function(request,error) {
+                // Error
+            }
+        });
+
+    });
+
+}(jQuery));

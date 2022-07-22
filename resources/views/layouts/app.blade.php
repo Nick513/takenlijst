@@ -60,6 +60,10 @@
                                         {{ Auth::user()->username }}
                                     </a>
                                     <div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('settings') }}">
+                                            <i class="fa-solid fa-cog" style="margin-left: -1px;margin-right: 2px;"></i>
+                                            {{ __('Settings') }}
+                                        </a>
                                         <a class="dropdown-item logout-button" href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                                             <i class="fa-solid fa-right-from-bracket"></i>
                                             {{ __('Logout') }}

@@ -23,3 +23,6 @@ Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('ho
 
 // Modal
 Route::get('/modal', [App\Http\Controllers\Modal\ModalController::class, 'load'])->name('load');
+
+// Tokens
+Route::middleware('auth')->get('/settings', [App\Http\Controllers\HomeController::class, 'settings'])->name('settings');

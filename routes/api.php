@@ -16,10 +16,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// Auth
-Route::middleware('auth:web')->get('/user', function (Request $request) { // auth:sanctum
+// User
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+Route::post('/user/update/amountoftasks', [App\Http\Controllers\Api\UserController::class, 'updateAmountOfTasks']);
 
 // Tasks
 Route::get('/tasks', [App\Http\Controllers\Api\TaskController::class, 'tasks']);

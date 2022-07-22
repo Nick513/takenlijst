@@ -104,10 +104,14 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'active' => 0,
             'activation_code' => $activationCode,
+            'settings' => json_encode(User::$defaultSettings),
         ]);
 
         // Create event
         event(new Registered($user));
+
+        // Create api token for new user
+        // $user->createToken('API', ['scope:all']);
 
         // Send email
         Mail::to($data['email'])->send(new ActivateEmail([

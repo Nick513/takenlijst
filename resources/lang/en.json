@@ -31,6 +31,9 @@
     "page.registration.account.activated": "Account activated",
     "page.registration.account.already.activated": "Account already activated",
     "page.registration.account.not.found": "Invalid code",
+    "page.settings.api.information": "Token: ",
+    "page.settings.general.amount.title": "Amount of tasks",
+    "page.settings.general.amount.content": "Determine the amount of tasks each page",
     "modal.tasks.edit": "Edit task",
     "modal.tasks.id": "ID",
     "modal.tasks.name": "Name",
@@ -52,5 +55,7 @@
     "Send Password Reset Link": "Send Password Reset Link",
     "Logout": "Logout",
     "The account is inactive": "This user is inactive",
-    "Please enter a valid email address": "Please enter a valid email address"
+    "Please enter a valid email address": "Please enter a valid email address",
+    "Settings": "Settings",
+    "General": "General"
 }

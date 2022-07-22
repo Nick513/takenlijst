@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Task;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -15,7 +16,7 @@ class TaskController extends Controller
      */
     public function __construct()
     {
-        // $this->middleware('auth');
+        $this->middleware('auth:sanctum');
     }
 
     /**
@@ -26,19 +27,14 @@ class TaskController extends Controller
     public function tasks()
     {
 
-        // Set tasks
-        $tasks = '{}';
-
         // Get user
         $user = Auth::user();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get amount of tasks
+        $amount = User::getAmountOfTasks($user);
 
-            // Get all tasks (using authentication)
-            $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate(10);
-
-        }
+        // Get all tasks
+        $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
 
         // Return tasks
         return $tasks;
@@ -53,19 +49,14 @@ class TaskController extends Controller
     public function links()
     {
 
-        // Set tasks
-        $tasks = [];
-
         // Get user
         $user = Auth::user();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get amount of tasks
+        $amount = User::getAmountOfTasks($user);
 
-            // Get all tasks (using authentication)
-            $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate(10);
-
-        }
+        // Get all tasks (using authentication)
+        $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
 
         // Return view
         return view('snippets.pagination', [
@@ -80,55 +71,65 @@ class TaskController extends Controller
     public function addTask(Request $request)
     {
 
-        // Set default success
-        $success = [
-            'result' => false,
-            'max' => 0
+        // Set default result
+        $result = [
+            'success' => false,
+            'max' => 0,
+            'amount' => 0,
         ];
 
         // Get post data
         $postData = $request->request->all();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Check if postData is not empty
+        if(!empty($postData) && array_key_exists('name', $postData) && array_key_exists('status', $postData) && array_key_exists('identifier', $postData)) {
 
-            // Check if postData is not empty
-            if(!empty($postData) && array_key_exists('name', $postData) && array_key_exists('status', $postData) && array_key_exists('identifier', $postData)) {
+            // Get user
+            $user = Auth::user();
 
-                // Get user
-                $user = Auth::user();
+            // Get amount of tasks
+            $amount = User::getAmountOfTasks($user);
 
-                // Create new task
-                $task = new Task();
+            // Create new task
+            $task = new Task();
 
-                // Get last sequence
-                $lastSequence = Task::query()->where('user_id', $user['id'])->orderBy('sequence', 'DESC')->first();
+            // Get last sequence
+            $lastSequence = Task::query()->where('user_id', $user['id'])->orderBy('sequence', 'DESC')->first();
 
-                // Fill task
-                $task->fill([
-                    'user_id' => $user['id'],
-                    'name' => $postData['name'],
-                    'description' => '',
-                    'status' => $postData['status'],
-                    'identifier' => $postData['identifier'],
-                    'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
-                ]);
+            // Fill task
+            $task->fill([
+                'user_id' => $user['id'],
+                'name' => $postData['name'],
+                'description' => '',
+                'status' => $postData['status'],
+                'identifier' => $postData['identifier'],
+                'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
+            ]);
+
+            // Try catch
+            try {
 
                 // Save task
                 $task->save();
 
                 // Set success
-                $success = [
-                    'result' => true,
+                $result = [
+                    'success' => true,
                     'max' => count(Task::query()->where('user_id', $user['id'])->get()),
+                    'amount' => $amount,
                 ];
+
+            } catch(\Exception $e) {
+
+                // Get error message
+                $errorMessage = $e->getMessage();
 
             }
 
         }
 
         // Return JSON response
-        return response(json_encode($success), 200)
+        return response(json_encode($result), 200)
             ->header('Content-Type', 'application/json');
 
     }
@@ -145,17 +146,17 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get user
+        $user = Auth::user();
 
-            // Get user
-            $user = Auth::user();
+        // Get task
+        $task = Task::query()->where('identifier', $identifier)->first();
 
-            // Get task
-            $task = Task::query()->where('identifier', $identifier)->first();
+        // Check if user is allowed to edit this task
+        if($task instanceof Task && $task['user_id'] === $user['id']) {
 
-            // Check if user is allowed to edit this task
-            if($task instanceof Task && $task['user_id'] === $user['id']) {
+            // Try catch
+            try {
 
                 // Update task
                 Task::query()->where('id', $task['id'])->update($postData);
@@ -165,6 +166,11 @@ class TaskController extends Controller
 
                 // Set success
                 $success = true;
+
+            } catch(\Exception $e) {
+
+                // Get error message
+                $errorMessage = $e->getMessage();
 
             }
 
@@ -197,23 +203,28 @@ class TaskController extends Controller
             // Get status
             $status = $toggle === 'true' ? 'new' : 'done';
 
-            // Check if user is authenticated
-            if(Auth::check()) {
+            // Get user
+            $user = Auth::user();
 
-                // Get user
-                $user = Auth::user();
+            // Get task by identifier
+            $instance = Task::query()->where('identifier', $identifier)->first();
 
-                // Get task by identifier
-                $instance = Task::query()->where('identifier', $identifier)->first();
+            // Check if instance is instance of Task model
+            if($instance instanceof Task && $instance['user_id'] === $user['id']) {
 
-                // Check if instance is instance of Task model
-                if($instance instanceof Task && $instance['user_id'] === $user['id']) {
+                // Try catch
+                try {
 
                     // Update task
                     Task::query()->where('id', $instance['id'])->update(['status' => $status]);
 
                     // Set success
                     $success = true;
+
+                } catch(\Exception $e) {
+
+                    // Get error message
+                    $errorMessage = $e->getMessage();
 
                 }
 
@@ -239,26 +250,31 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get user
+        $user = Auth::user();
 
-            // Get user
-            $user = Auth::user();
+        // Get identifier
+        $identifier = $postData['identifier'];
 
-            // Get identifier
-            $identifier = $postData['identifier'];
+        // Get task by identifier
+        $task = Task::query()->where('identifier', $identifier)->first();
 
-            // Get task by identifier
-            $task = Task::query()->where('identifier', $identifier)->first();
+        // Check if instance of task model & if user is allowed to delete this task
+        if($task instanceof Task && $task['user_id'] === $user['id']) {
 
-            // Check if instance of task model & if user is allowed to delete this task
-            if($task instanceof Task && $task['user_id'] === $user['id']) {
+            // Try catch
+            try {
 
                 // Delete task
                 $task->delete();
 
                 // Set success
                 $success = true;
+
+            } catch(\Exception $e) {
+
+                // Get error message
+                $errorMessage = $e->getMessage();
 
             }
 
@@ -279,17 +295,22 @@ class TaskController extends Controller
         // Set default success
         $success = false;
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get user
+        $user = Auth::user();
 
-            // Get user
-            $user = Auth::user();
+        // Try catch
+        try {
 
             // Delete all tasks of user
             Task::query()->where('user_id', $user['id'])->delete();
 
             // Set success
             $success = true;
+
+        } catch(\Exception $e) {
+
+            // Get error message
+            $errorMessage = $e->getMessage();
 
         }
 
@@ -305,39 +326,33 @@ class TaskController extends Controller
     public function orderTasks(Request $request)
     {
 
-        // Set default success
-        $success = false;
-
         // Get post data
         $postData = $request->request->all();
 
-        // Check if user is authenticated
-        if(Auth::check()) {
+        // Get tasks from request
+        $tasks = $postData['task'];
 
-            // Get tasks from request
-            $tasks = $postData['task'];
+        // Set count
+        $count = 1;
 
-            // Set count
-            $count = 1;
+        // TODO: Use DB transaction to make sure all records are updated -> return success
 
-            // Loop over tasks
-            foreach($tasks as $key => $task) {
+        // Loop over tasks
+        foreach($tasks as $key => $task) {
 
-                // Get task by identifier
-                $instance = Task::query()->where('identifier', $task)->first();
+            // Get task by identifier
+            $instance = Task::query()->where('identifier', $task)->first();
 
-                // Update task
-                Task::query()->where('id', $instance['id'])->update(['sequence' => $count]);
+            // Update task
+            Task::query()->where('id', $instance['id'])->update(['sequence' => $count]);
 
-                // Increment count
-                $count++;
-
-            }
-
-            // Set success
-            $success = true;
+            // Increment count
+            $count++;
 
         }
+
+        // Set success
+        $success = true;
 
         // Return JSON response
         return response(json_encode($success), 200)

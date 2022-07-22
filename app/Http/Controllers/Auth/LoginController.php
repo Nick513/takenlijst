@@ -83,10 +83,31 @@ class LoginController extends Controller
 
         // Attempt to login
         if($this->attemptLogin($request)) {
-            if ($request->hasSession()) {
+
+            // Check if has session
+            if($request->hasSession()) {
                 $request->session()->put('auth.password_confirmed_at', time());
             }
+
+            // Get user by login type
+            if($login_type === 'email') {
+                $user = User::where('email', $request['email'])->firstOrFail();
+            } else if($login_type === 'username') {
+                $user = User::where('username', $request['username'])->firstOrFail();
+            }
+
+            // Delete all api tokens
+            $this->guard()->user()->tokens()->delete();
+
+            // Generate new token
+            $token = $user->createToken('API', ['scope:all']);
+
+            // Add api token in session
+            $request->session()->put('auth.apitoken', $token->plainTextToken);
+
+            // Send login response
             return $this->sendLoginResponse($request);
+
         }
 
         // If the login attempt was unsuccessful we will increment the number of attempts
@@ -139,5 +160,28 @@ class LoginController extends Controller
     public function username(): string
     {
         return $this->username;
+    }
+
+    /**
+     * Log the user out of the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\RedirectResponse|\Illuminate\Http\Response|\Illuminate\Routing\Redirector
+     */
+    public function logout(Request $request)
+    {
+
+        // Destroy api tokens
+        // $this->guard()->user()->tokens()->delete();
+
+        // Logout user
+        $this->guard()->logout();
+
+        // Invalidate session
+        $request->session()->invalidate();
+
+        // Return or redirect
+        return $this->loggedOut($request) ?: redirect('/');
+
     }
 }

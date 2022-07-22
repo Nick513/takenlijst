@@ -20,10 +20,18 @@
                 @endif
 
                 {{-- Array Of Links --}}
-                @if (is_array($element))
+                @if(is_array($element))
                     @foreach ($element as $page => $url)
-                        <!-- TODO: Modify to only show a part of the pages at start & end -->
-                        @if ($page == $paginator->currentPage())
+                        @if(array_key_exists('page', $_GET))
+                            @php
+                                $cpage = $_GET['page'];
+                            @endphp
+                        @else
+                            @php
+                                $cpage = $paginator->currentPage();
+                            @endphp
+                        @endif
+                        @if ($page == $cpage)
                             <li class="page-item active" aria-current="page"><span class="page-link">{{ $page }}</span></li>
                         @else
                             <li class="page-item"><a class="page-link" href="{{ $url }}">{{ $page }}</a></li>
@@ -39,7 +47,7 @@
                 </li>
             @else
                 <li class="page-item disabled" aria-disabled="true" aria-label="@lang('pagination.next')">
-                    <span aria-hidden="true">&rsaquo;</span>
+                    <span class="page-link" aria-hidden="true">&rsaquo;</span>
                 </li>
             @endif
         </ul>

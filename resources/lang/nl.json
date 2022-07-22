@@ -31,6 +31,9 @@
     "page.registration.account.activated": "Account geactiveerd",
     "page.registration.account.already.activated": "Account is al geactiveerd",
     "page.registration.account.not.found": "Ongeldige code",
+    "page.settings.api.information": "Token: ",
+    "page.settings.general.amount.title": "Aantal taken",
+    "page.settings.general.amount.content": "Bepaal het aantal taken per pagina",
     "modal.tasks.edit": "Taak wijzigen",
     "modal.tasks.id": "ID",
     "modal.tasks.name": "Naam",
@@ -52,5 +55,7 @@
     "Send Password Reset Link": "Verzenden",
     "Logout": "Uitloggen",
     "The account is inactive": "Deze gebruiker is inactief",
-    "Please enter a valid email address": "Vul a.u.b. een geldig emailadres in"
+    "Please enter a valid email address": "Vul a.u.b. een geldig emailadres in",
+    "Settings": "Instellingen",
+    "General": "Algemeen"
 }
