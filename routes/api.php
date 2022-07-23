@@ -4,6 +4,9 @@ use \App\Models\Task;
 use \Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,19 +19,26 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-// User
+// Default
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/user/update/amountoftasks', [App\Http\Controllers\Api\UserController::class, 'updateAmountOfTasks']);
+
+// Auth
+Route::post('/register', [AuthController::class, 'register'])->name('api_register');
+Route::post('/login', [AuthController::class, 'login'])->name('api_login');
+Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout'])->name('api_logout');
+
+// User
+Route::post('/user/update/amountoftasks', [UserController::class, 'updateAmountOfTasks']);
 
 // Tasks
-Route::get('/tasks', [App\Http\Controllers\Api\TaskController::class, 'tasks']);
-Route::get('/tasks/links', [App\Http\Controllers\Api\TaskController::class, 'links']);
-Route::post('/tasks/add', [App\Http\Controllers\Api\TaskController::class, 'addTask']);
-Route::post('/tasks/edit/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'editTask']);
-Route::post('/tasks/toggle/{identifier}', [App\Http\Controllers\Api\TaskController::class, 'toggleTask']);
-Route::delete('/tasks/delete', [App\Http\Controllers\Api\TaskController::class, 'deleteTask']);
-Route::delete('/tasks/delete/all', [App\Http\Controllers\Api\TaskController::class, 'deleteAllTasks']);
-Route::post('/tasks/order', [App\Http\Controllers\Api\TaskController::class, 'orderTasks']);
-Route::get('/tasks/snippet', [App\Http\Controllers\Api\TaskController::class, 'snippet']);
+Route::get('/tasks/{identifier?}', [TaskController::class, 'tasks']);
+Route::get('/tasks/links', [TaskController::class, 'links']);
+Route::post('/tasks/add', [TaskController::class, 'addTask']);
+Route::post('/tasks/edit/{identifier}', [TaskController::class, 'editTask']);
+Route::post('/tasks/toggle/{identifier}', [TaskController::class, 'toggleTask']);
+Route::delete('/tasks/delete', [TaskController::class, 'deleteTask']);
+Route::delete('/tasks/delete/all', [TaskController::class, 'deleteAllTasks']);
+Route::post('/tasks/order', [TaskController::class, 'orderTasks']);
+Route::get('/tasks/snippet', [TaskController::class, 'snippet']);

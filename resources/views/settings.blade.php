@@ -36,7 +36,7 @@
 
             </div>
             <div class="tab-pane" id="nav-api" role="tabpanel" aria-labelledby="nav-api-tab">
-                <b>{{ __('page.settings.api.information') }}</b>{{ Session::get('auth.apitoken') }}
+                <b>{{ __('page.settings.api.information') }}</b>{{ explode('|', Session::get('auth.apitoken'))[1] }}
             </div>
         </div>
     </div>

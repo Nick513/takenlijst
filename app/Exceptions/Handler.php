@@ -47,7 +47,8 @@ class Handler extends ExceptionHandler
      * @param AuthenticationException $ex
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector|\Symfony\Component\HttpFoundation\Response
      */
-    protected function unauthenticated($request, AuthenticationException $ex){
+    protected function unauthenticated($request, AuthenticationException $ex)
+    {
 
         // Check if route starts with api/* wildcard
         if($request->is('api/*') ) {

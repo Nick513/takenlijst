@@ -33,7 +33,8 @@ class User extends Authenticatable
         'email',
         'password',
         'active',
-        'activation_code'
+        'activation_code',
+        'settings'
     ];
 
     /**
@@ -75,11 +76,21 @@ class User extends Authenticatable
         // Get settings
         $settings = json_decode($user['settings'], true);
 
-        // Get amount of tasks
-        if(array_key_exists('tasks', $settings) && array_key_exists('amount', $settings['tasks'])) {
+        // Check if settings is array
+        if(is_array($settings)) {
 
-            // Set amount
-            $amount = json_decode($settings['tasks']['amount'], true);
+            // Get amount of tasks
+            if (array_key_exists('tasks', $settings) && array_key_exists('amount', $settings['tasks'])) {
+
+                // Set amount
+                $amount = json_decode($settings['tasks']['amount'], true);
+
+            } else {
+
+                // Set amount
+                $amount = 10;
+
+            }
 
         } else {
 

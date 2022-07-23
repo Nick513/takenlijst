@@ -147,11 +147,21 @@ class RegisterController extends Controller
 
             } else {
 
-                // Activate user
-                $user->update(['active' => 1]);
+                // Try catch
+                try {
 
-                // Notify
-                $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('page.registration.account.activated'), "type" => 'success'));
+                    // Activate user
+                    $user->update(['active' => 1, 'activation_code' => null]);
+
+                    // Notify
+                    $this->request->session()->flash('notify', array("icon" => 'fas fa-check', "message" => __('page.registration.account.activated'), "type" => 'success'));
+
+                } catch(\Exception $e) {
+
+                    // Get error message
+                    $errorMessage = $e->getMessage();
+
+                }
 
             }
 

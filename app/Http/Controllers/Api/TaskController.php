@@ -21,10 +21,8 @@ class TaskController extends Controller
 
     /**
      * Get tasks
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function tasks()
+    public function tasks($identifier = null)
     {
 
         // Get user
@@ -33,11 +31,31 @@ class TaskController extends Controller
         // Get amount of tasks
         $amount = User::getAmountOfTasks($user);
 
-        // Get all tasks
-        $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
+        // Check if identifier is not null
+        if($identifier) {
 
-        // Return tasks
-        return $tasks;
+            // Get task
+            $task = Task::query()->where('user_id', '=', $user['id'])->where('identifier', $identifier)->first();
+
+            // Check if task is instance of task model
+            if($task instanceof Task) {
+
+                // Return task
+                return $task;
+
+            }
+
+        } else {
+
+            // Return tasks
+            return DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
+
+        }
+
+        // Return
+        return \response([
+            'message' => 'Unauthorized'
+        ], 401);
 
     }
 
@@ -100,7 +118,7 @@ class TaskController extends Controller
             $task->fill([
                 'user_id' => $user['id'],
                 'name' => $postData['name'],
-                'description' => '',
+                'description' => $postData['description'],
                 'status' => $postData['status'],
                 'identifier' => $postData['identifier'],
                 'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
@@ -326,14 +344,30 @@ class TaskController extends Controller
     public function orderTasks(Request $request)
     {
 
+        // Get user
+        $user = Auth::user();
+
         // Get post data
         $postData = $request->request->all();
 
         // Get tasks from request
         $tasks = $postData['task'];
 
-        // Set count
-        $count = 1;
+        // Get first task identifier
+        $firstTaskIdentifier = $tasks[0];
+
+        // Get first task
+        $firstTask = Task::query()->where('identifier', $firstTaskIdentifier)->first();
+        $firstTaskSequence = $firstTask['sequence'];
+
+        // Get amount of user
+        $amountOfTasks = User::getAmountOfTasks($user);
+
+        // Get page
+        $page = floor($firstTaskSequence / $amountOfTasks);
+
+        // Get start of sequence
+        $count = ($page * $amountOfTasks) + 1;
 
         // TODO: Use DB transaction to make sure all records are updated -> return success
 

@@ -84,7 +84,7 @@ class LoginController extends Controller
         // Attempt to login
         if($this->attemptLogin($request)) {
 
-            // Check if has session
+            // Has session
             if($request->hasSession()) {
                 $request->session()->put('auth.password_confirmed_at', time());
             }
@@ -92,14 +92,14 @@ class LoginController extends Controller
             // Get user by login type
             if($login_type === 'email') {
                 $user = User::where('email', $request['email'])->firstOrFail();
-            } else if($login_type === 'username') {
+            } else {
                 $user = User::where('username', $request['username'])->firstOrFail();
             }
 
-            // Delete all api tokens
+            // Delete old API tokens
             $this->guard()->user()->tokens()->delete();
 
-            // Generate new token
+            // Generate new api token
             $token = $user->createToken('API', ['scope:all']);
 
             // Add api token in session
