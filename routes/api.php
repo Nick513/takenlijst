@@ -33,12 +33,12 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 Route::post('/user/update/amountoftasks', [UserController::class, 'updateAmountOfTasks']);
 
 // Tasks
-Route::get('/tasks/{identifier?}', [TaskController::class, 'tasks']);
+Route::get('/tasks/snippet', [TaskController::class, 'snippet']);
 Route::get('/tasks/links', [TaskController::class, 'links']);
+Route::get('/tasks/{identifier?}', [TaskController::class, 'tasks']);
 Route::post('/tasks/add', [TaskController::class, 'addTask']);
+Route::post('/tasks/order', [TaskController::class, 'orderTasks']);
 Route::post('/tasks/edit/{identifier}', [TaskController::class, 'editTask']);
 Route::post('/tasks/toggle/{identifier}', [TaskController::class, 'toggleTask']);
 Route::delete('/tasks/delete', [TaskController::class, 'deleteTask']);
 Route::delete('/tasks/delete/all', [TaskController::class, 'deleteAllTasks']);
-Route::post('/tasks/order', [TaskController::class, 'orderTasks']);
-Route::get('/tasks/snippet', [TaskController::class, 'snippet']);

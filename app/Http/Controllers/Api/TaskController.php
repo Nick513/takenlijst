@@ -22,20 +22,20 @@ class TaskController extends Controller
     /**
      * Get tasks
      */
-    public function tasks($identifier = null)
+    public function tasks(Request $request, $identifier = null)
     {
 
         // Get user
         $user = Auth::user();
 
-        // Get amount of tasks
-        $amount = User::getAmountOfTasks($user);
-
         // Check if identifier is not null
         if($identifier) {
 
             // Get task
-            $task = Task::query()->where('user_id', '=', $user['id'])->where('identifier', $identifier)->first();
+            $task = Task::query()
+                ->where('user_id', '=', $user['id'])
+                ->where('identifier', $identifier)
+                ->first();
 
             // Check if task is instance of task model
             if($task instanceof Task) {
@@ -47,8 +47,32 @@ class TaskController extends Controller
 
         } else {
 
+            // Get amount of tasks
+            $amount = User::getAmountOfTasks($user);
+
+            // Get query parameter
+            $queryParams = $request->query->all();
+
+            // Check if queryParams has search field
+            if(array_key_exists('search', $queryParams)) {
+
+                // Get search
+                $search = $queryParams['search'];
+
+                // Return tasks
+                return Task::query()
+                    ->where('user_id', '=', $user['id'])
+                    ->where('name', 'LIKE', '%'.$search.'%')
+                    ->orderBy('sequence')
+                    ->paginate($amount);
+
+            }
+
             // Return tasks
-            return DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
+            return Task::query()
+                ->where('user_id', '=', $user['id'])
+                ->orderBy('sequence')
+                ->paginate($amount);
 
         }
 
@@ -118,7 +142,7 @@ class TaskController extends Controller
             $task->fill([
                 'user_id' => $user['id'],
                 'name' => $postData['name'],
-                'description' => $postData['description'],
+                'description' => array_key_exists('description', $postData) ? $postData['description'] : '',
                 'status' => $postData['status'],
                 'identifier' => $postData['identifier'],
                 'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1

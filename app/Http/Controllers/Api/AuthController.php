@@ -62,7 +62,8 @@ class AuthController extends Controller
 
         // Create response
         $response = [
-            'user' => $user,
+            'message' => 'User has been created, activation email has been sent.',
+            // 'user' => $user,
             // 'token' => explode('|', $token)[1],
         ];
 

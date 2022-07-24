@@ -4,12 +4,7 @@
 var snippet;
 var mloaded;
 var activePopup;
-
-/**
- * Fill global variables
- */
-mloaded = false;
-activePopup = false;
+var csrfToken;
 
 /**
  * Fill global variables
@@ -25,6 +20,9 @@ snippet = $.ajax({
         // Error
     }
 });
+mloaded = false;
+activePopup = false;
+csrfToken = $('meta[name="csrf-token"]').attr('content');
 
 /**
  * Functions
@@ -46,6 +44,25 @@ var getUrlParameter = function getUrlParameter(sParam) {
     }
     return false;
 };
+
+// Replace URL parameters
+function replaceUrlParam(url, paramName, paramValue)
+{
+    if(paramValue == null) {
+        paramValue = '';
+    }
+    var pattern = new RegExp('\\b('+paramName+'=).*?(&|#|$)');
+    if (url.search(pattern)>=0) {
+        return url.replace(pattern,'$1' + paramValue + '$2');
+    }
+    url = url.replace(/[?#]$/,'');
+    return url + (url.indexOf('?')>0 ? '&' : '?') + paramName + '=' + paramValue;
+}
+
+// Remove all query parameters from URL
+function getCleanUrl(url) {
+    return url.replace(/#.*$/, '').replace(/\?.*$/, '');
+}
 
 // Get tasks from database
 function getTasksFromDatabase() {
@@ -128,12 +145,12 @@ function setToDone(toggle, li) {
     // Fill variables
     id = li.attr("data-id");
 
-        // Ajax call
+    // Ajax call
     $.ajax({
         url: '/api/tasks/toggle/' + id,
         type: 'POST',
         data: { toggle },
-        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+        headers: {'X-CSRF-TOKEN': csrfToken},
         success: function(result) {
 
             // Only set to done when result is valid
@@ -169,7 +186,7 @@ function deleteTask(id, todoList, task, noItemsElm, refreshElm) {
         url: '/api/tasks/delete',
         type: 'DELETE',
         data: { identifier: id },
-        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+        headers: {'X-CSRF-TOKEN': csrfToken},
         success: function(result) {
 
             // Only delete if result is valid
@@ -227,6 +244,8 @@ function addTask(text, description, status, initialLoad = false, id = generateID
     var currentPage;
     var url;
 
+    var searchValue;
+
     // Fill variables
     noItemsElm = $(".no-items");
     addTaskElm = $(".add-task");
@@ -275,7 +294,7 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                     url: '/api/tasks/add',
                     type: 'POST',
                     data: { identifier: id, name: text, status: c === 'danger' ? 'done' : 'new' },
-                    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                    headers: {'X-CSRF-TOKEN': csrfToken},
                     success: function(result) {
 
                         // Check if result is true
@@ -318,8 +337,26 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                             // Check if amount of tasks is amount or higher
                             if(todoListElm.find(".task").length < result['amount']) {
 
-                                // Append item
-                                todoListElm.append(item);
+                                // Get searchValue
+                                searchValue = getUrlParameter('search');
+
+                                // Check if query parameter search is set
+                                if(searchValue !== false) {
+
+                                    // Check if substring (searchValue) is present in string (text)
+                                    if(~text.toLowerCase().indexOf(searchValue.toLowerCase())) {
+
+                                        // Append item
+                                        todoListElm.append(item);
+
+                                    }
+
+                                } else {
+
+                                    // Append item
+                                    todoListElm.append(item);
+
+                                }
 
                             }
 
@@ -382,7 +419,7 @@ function deleteAllTasks(todoList, noItemsElm, refreshElm, maxDuration) {
     $.ajax({
         url: '/api/tasks/delete/all',
         type: 'DELETE',
-        headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+        headers: {'X-CSRF-TOKEN': csrfToken},
         success: function(result) {
 
             // Only delete if result is valid
@@ -648,7 +685,7 @@ function initializeMenu() {
                 view: 'edittask',
                 additional,
             },
-            headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+            headers: {'X-CSRF-TOKEN': csrfToken},
             success: function(html) {
 
                 // Append to DOM
@@ -748,7 +785,7 @@ function initializeMenu() {
                     description,
                     status
                 },
-                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function(result) {
 
                     // Check if result is true
@@ -839,7 +876,7 @@ function initializeMenu() {
                 url: '/api/tasks/order',
                 type: 'POST',
                 data: data,
-                headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+                headers: {'X-CSRF-TOKEN': csrfToken},
                 success: function(result) {
 
                     // Check if result is false
@@ -881,5 +918,63 @@ function initializeMenu() {
 
     // Initialize menu
     initializeMenu();
+
+}(jQuery));
+
+/**
+ * Search
+ */
+(function($) {
+
+    // Set variables
+    var search;
+    var value;
+    var keycode;
+    var url;
+
+    // Fill variables
+    search = $(".search");
+
+    // On click
+    search.on("click", function(e){
+
+        // Check if active element (in focus) has class search-input to determine if search is opened or closed
+        if($(document.activeElement).hasClass("search-input")) {
+            $(this).find('input').val('');
+        } else {
+            // console.log('close');
+        }
+
+    });
+
+    // On enter
+    search.keypress(function(event){
+        keycode = (event.keyCode ? event.keyCode : event.which);
+        if(keycode === 13){
+
+            // Get value
+            value = $(this).find('.search-input').val();
+
+            // Check if value is empty
+            if(value === '') {
+
+                // Get url
+                url = getCleanUrl(window.location.href);
+
+            } else {
+
+                // Check if url already has search parameter
+                url = replaceUrlParam(window.location.href, 'search', value);
+
+            }
+
+            // Remove page parameter
+            url = url.replace(/&?page=([^&]$|[^&]*)/i, "");
+
+            // Redirect to URL
+            window.location.href = url;
+
+        }
+    });
 
 }(jQuery));

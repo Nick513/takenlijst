@@ -20,16 +20,16 @@ date = new Date();
 
 // Fill array with weekdays
 weekday = new Array(7);
-weekday[0] = $("input[name='monday']").val().toLowerCase() + " 💪😀";
-weekday[1] = $("input[name='tuesday']").val().toLowerCase() + " 😜";
-weekday[2] = $("input[name='wednesday']").val().toLowerCase() + " 😌☕️";
-weekday[3] = $("input[name='thursday']").val().toLowerCase() + " 🤗";
-weekday[4] = $("input[name='friday']").val().toLowerCase() + " 🍻";
-weekday[5] = $("input[name='saturday']").val().toLowerCase() + " 😴";
-weekday[6] = $("input[name='sunday']").val().toLowerCase() + " 🖖";
+weekday[0] = $("input[name='sunday']").val().toLowerCase() + " 🖖";
+weekday[1] = $("input[name='monday']").val().toLowerCase() + " 💪😀";
+weekday[2] = $("input[name='tuesday']").val().toLowerCase() + " 😜";
+weekday[3] = $("input[name='wednesday']").val().toLowerCase() + " 😌☕️";
+weekday[4] = $("input[name='thursday']").val().toLowerCase() + " 🤗";
+weekday[5] = $("input[name='friday']").val().toLowerCase() + " 🍻";
+weekday[6] = $("input[name='saturday']").val().toLowerCase() + " 😴";
 
 // Get current day
-currentday = weekday[date.getDay()-1];
+currentday = weekday[date.getDay()];
 
 // Create random word array
 randomWordArray = Array(

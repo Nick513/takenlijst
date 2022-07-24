@@ -1,7 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Home\HomeController;
+use App\Http\Controllers\Settings\SettingsController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Modal\ModalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,13 +20,13 @@ use Illuminate\Support\Facades\Auth;
 
 // Authentication
 Auth::routes();
-Route::get('/activate/{code}', [App\Http\Controllers\Auth\RegisterController::class, 'activate'])->name('activate');
+Route::get('/activate/{code}', [RegisterController::class, 'activate'])->name('activate');
 
 // Home
-Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
+// Settings
+Route::middleware('auth')->get('/settings', [SettingsController::class, 'settings'])->name('settings');
 
 // Modal
-Route::get('/modal', [App\Http\Controllers\Modal\ModalController::class, 'load'])->name('load');
-
-// Tokens
-Route::middleware('auth')->get('/settings', [App\Http\Controllers\HomeController::class, 'settings'])->name('settings');
+Route::get('/modal', [ModalController::class, 'load'])->name('load');
