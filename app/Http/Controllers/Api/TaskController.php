@@ -473,10 +473,10 @@ class TaskController extends Controller
                 // Return view
                 return view('snippets.empty');
 
-            } else if(array_key_exists('id', $queryParams) && array_key_exists('status', $queryParams) && array_key_exists('name', $queryParams)) {
+            } else if(array_key_exists('id', $queryParams) && array_key_exists('status', $queryParams) && array_key_exists('name', $queryParams) && array_key_exists('description', $queryParams)) {
 
                 // Return view
-                return view('snippets.task', ['id' => $queryParams['id'], 'status' => $queryParams['status'], 'name' => $queryParams['name']]);
+                return view('snippets.task', ['id' => $queryParams['id'], 'status' => $queryParams['status'], 'name' => $queryParams['name'], 'description' => $queryParams['description']]);
 
             }
 
