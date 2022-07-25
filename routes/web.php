@@ -6,6 +6,7 @@ use App\Http\Controllers\Home\HomeController;
 use App\Http\Controllers\Settings\SettingsController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Modal\ModalController;
+use App\Http\Controllers\Language\LanguageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,3 +31,6 @@ Route::middleware('auth')->get('/settings', [SettingsController::class, 'setting
 
 // Modal
 Route::get('/modal', [ModalController::class, 'load'])->name('load');
+
+// Language
+Route::get('/lang/{locale}', [LanguageController::class, 'switch'])->name('switch_language');
