@@ -242,6 +242,7 @@ function addTask(text, description, status, initialLoad = false, id = generateID
     var item;
 
     var currentPage;
+    var searchParam;
     var url;
 
     var searchValue;
@@ -293,7 +294,7 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                 $.ajax({
                     url: '/api/tasks/add',
                     type: 'POST',
-                    data: { identifier: id, name: text, status: c === 'danger' ? 'done' : 'new' },
+                    data: { identifier: id, name: text, status: c === 'danger' ? 'done' : 'new', search: getUrlParameter('search') },
                     headers: {'X-CSRF-TOKEN': csrfToken},
                     success: function(result) {
 
@@ -313,9 +314,26 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                                 // Check if pagination is 0
                                 if(pplaceholder.find('ul.pagination').length === 0) {
 
-                                    // Get searchParams
+                                    // Get current page parameter
                                     currentPage = getUrlParameter('page');
-                                    url = currentPage !== false ? '/api/tasks/links?page=' + currentPage : '/api/tasks/links';
+
+                                    // Get search parameter
+                                    searchParam = getUrlParameter('search');
+
+                                    // Set default url
+                                    url = '/api/tasks/links';
+
+                                    // Create url
+                                    if(currentPage !== false) {
+                                        url = url + '?page=' + currentPage;
+                                        if(searchParam !== false) {
+                                            url = url + '&search=' + searchParam;
+                                        }
+                                    } else {
+                                        if(searchParam !== false) {
+                                            url = url + '?search=' + searchParam;
+                                        }
+                                    }
 
                                     // Ajax call
                                     $.ajax({
@@ -349,6 +367,10 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                                         // Append item
                                         todoListElm.append(item);
 
+                                        // Manipulate DOM
+                                        noItemsElm.addClass("hidden");
+                                        refreshElm.removeClass("hidden");
+
                                     }
 
                                 } else {
@@ -356,14 +378,16 @@ function addTask(text, description, status, initialLoad = false, id = generateID
                                     // Append item
                                     todoListElm.append(item);
 
+                                    // Manipulate DOM
+                                    noItemsElm.addClass("hidden");
+                                    refreshElm.removeClass("hidden");
+
                                 }
 
                             }
 
                             // Manipulate DOM
                             addTaskElm.removeClass("error");
-                            noItemsElm.addClass("hidden");
-                            refreshElm.removeClass("hidden");
 
                             // Reset value
                             addTaskElm.val("");

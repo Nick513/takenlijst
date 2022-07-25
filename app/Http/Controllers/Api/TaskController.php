@@ -88,7 +88,7 @@ class TaskController extends Controller
      *
      * @return \Illuminate\Contracts\Foundation\Application|\Illuminate\Contracts\View\Factory|\Illuminate\Contracts\View\View
      */
-    public function links()
+    public function links(Request $request)
     {
 
         // Get user
@@ -97,8 +97,26 @@ class TaskController extends Controller
         // Get amount of tasks
         $amount = User::getAmountOfTasks($user);
 
+        // Set default search
+        $search = '';
+
+        // Get queryParams
+        $queryParams = $request->query->all();
+
+        // Check if search is found
+        if(array_key_exists('search', $queryParams)) {
+
+            // Get search
+            $search = $queryParams['search'];
+
+        }
+
         // Get all tasks (using authentication)
-        $tasks = DB::table('tasks')->where('user_id', '=', $user['id'])->orderBy('sequence')->paginate($amount);
+        $tasks = Task::query()
+            ->where('user_id', '=', $user['id'])
+            ->where('name', 'LIKE', '%'.$search.'%')
+            ->orderBy('sequence')
+            ->paginate($amount);
 
         // Return view
         return view('snippets.pagination', [
@@ -136,7 +154,10 @@ class TaskController extends Controller
             $task = new Task();
 
             // Get last sequence
-            $lastSequence = Task::query()->where('user_id', $user['id'])->orderBy('sequence', 'DESC')->first();
+            $lastSequence = Task::query()
+                ->where('user_id', $user['id'])
+                ->orderBy('sequence', 'DESC')
+                ->first();
 
             // Fill task
             $task->fill([
@@ -154,10 +175,18 @@ class TaskController extends Controller
                 // Save task
                 $task->save();
 
+                // Get search
+                $search = $postData['search'] !== 'false' ? $postData['search'] : '';
+
                 // Set success
                 $result = [
                     'success' => true,
-                    'max' => count(Task::query()->where('user_id', $user['id'])->get()),
+                    'max' => count(
+                        Task::query()
+                        ->where('user_id', $user['id'])
+                        ->where('name', 'LIKE', '%'.$search.'%')
+                        ->get()
+                    ),
                     'amount' => $amount,
                 ];
 
@@ -374,35 +403,43 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Get tasks from request
-        $tasks = $postData['task'];
+        // Get identifiers from request
+        $identifiers = $postData['task'];
 
-        // Get first task identifier
-        $firstTaskIdentifier = $tasks[0];
+        // Set empty tasks
+        $sequences = [];
+        $values = [];
 
-        // Get first task
-        $firstTask = Task::query()->where('identifier', $firstTaskIdentifier)->first();
-        $firstTaskSequence = $firstTask['sequence'];
-
-        // Get amount of user
-        $amountOfTasks = User::getAmountOfTasks($user);
-
-        // Get page
-        $page = floor($firstTaskSequence / $amountOfTasks);
-
-        // Get start of sequence
-        $count = ($page * $amountOfTasks) + 1;
-
-        // TODO: Use DB transaction to make sure all records are updated -> return success
+        // Set count
+        $count = 0;
 
         // Loop over tasks
-        foreach($tasks as $key => $task) {
+        foreach($identifiers as $key => $identifier) {
 
-            // Get task by identifier
-            $instance = Task::query()->where('identifier', $task)->first();
+            // Create task
+            $task = Task::query()->where('identifier', $identifier)->first();
+
+            // Check if instance of Task
+            if($task instanceof Task) {
+
+                // Fill sequences array
+                $sequences[$task['identifier']] = $task['sequence'];
+
+                // Fill values array
+                $values[$key] = $task['sequence'];
+
+            }
+
+        }
+
+        // Sort values
+        sort($values);
+
+        // Loop over tasks
+        foreach($sequences as $identifier => $sequence) {
 
             // Update task
-            Task::query()->where('id', $instance['id'])->update(['sequence' => $count]);
+            Task::query()->where('identifier', $identifier)->update(['sequence' => $values[$count]]);
 
             // Increment count
             $count++;

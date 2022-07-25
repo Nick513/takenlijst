@@ -35,7 +35,7 @@ Route::post('/user/update/amountoftasks', [UserController::class, 'updateAmountO
 // Tasks
 Route::get('/tasks/snippet', [TaskController::class, 'snippet']);
 Route::get('/tasks/links', [TaskController::class, 'links']);
-Route::get('/tasks/{identifier?}', [TaskController::class, 'tasks']);
+Route::get('/tasks', [TaskController::class, 'tasks']);
 Route::post('/tasks/add', [TaskController::class, 'addTask']);
 Route::post('/tasks/order', [TaskController::class, 'orderTasks']);
 Route::post('/tasks/edit/{identifier}', [TaskController::class, 'editTask']);
