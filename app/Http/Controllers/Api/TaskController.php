@@ -97,19 +97,16 @@ class TaskController extends Controller
         // Get amount of tasks
         $amount = User::getAmountOfTasks($user);
 
-        // Set default search
-        $search = '';
-
         // Get queryParams
         $queryParams = $request->query->all();
 
-        // Check if search is found
-        if(array_key_exists('search', $queryParams)) {
+        // Set validation rules
+        $request->validate([
+            'search' => 'required'
+        ]);
 
-            // Get search
-            $search = $queryParams['search'];
-
-        }
+        // Get search
+        $search = $queryParams['search'];
 
         // Get all tasks (using authentication)
         $tasks = Task::query()
@@ -141,61 +138,63 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Check if postData is not empty
-        if(!empty($postData) && array_key_exists('name', $postData) && array_key_exists('status', $postData) && array_key_exists('identifier', $postData)) {
+        // Set validation rules
+        $request->validate([
+            'name' => 'required',
+            'status' => 'required',
+            'identifier' => 'required'
+        ]);
 
-            // Get user
-            $user = Auth::user();
+        // Get user
+        $user = Auth::user();
 
-            // Get amount of tasks
-            $amount = User::getAmountOfTasks($user);
+        // Get amount of tasks
+        $amount = User::getAmountOfTasks($user);
 
-            // Create new task
-            $task = new Task();
+        // Create new task
+        $task = new Task();
 
-            // Get last sequence
-            $lastSequence = Task::query()
-                ->where('user_id', $user['id'])
-                ->orderBy('sequence', 'DESC')
-                ->first();
+        // Get last sequence
+        $lastSequence = Task::query()
+            ->where('user_id', $user['id'])
+            ->orderBy('sequence', 'DESC')
+            ->first();
 
-            // Fill task
-            $task->fill([
-                'user_id' => $user['id'],
-                'name' => $postData['name'],
-                'description' => array_key_exists('description', $postData) ? $postData['description'] : '',
-                'status' => $postData['status'],
-                'identifier' => $postData['identifier'],
-                'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
-            ]);
+        // Fill task
+        $task->fill([
+            'user_id' => $user['id'],
+            'name' => $postData['name'],
+            'description' => array_key_exists('description', $postData) ? $postData['description'] : '',
+            'status' => $postData['status'],
+            'identifier' => $postData['identifier'],
+            'sequence' => $lastSequence === null ? 1 : $lastSequence['sequence']+1
+        ]);
 
-            // Try catch
-            try {
+        // Try catch
+        try {
 
-                // Save task
-                $task->save();
+            // Save task
+            $task->save();
 
-                // Get search
-                $search = $postData['search'] !== 'false' ? $postData['search'] : '';
+            // Get search
+            $search = $postData['search'] !== 'false' ? $postData['search'] : '';
 
-                // Set success
-                $result = [
-                    'success' => true,
-                    'max' => count(
-                        Task::query()
-                        ->where('user_id', $user['id'])
-                        ->where('name', 'LIKE', '%'.$search.'%')
-                        ->get()
-                    ),
-                    'amount' => $amount,
-                ];
+            // Set success
+            $result = [
+                'success' => true,
+                'max' => count(
+                    Task::query()
+                    ->where('user_id', $user['id'])
+                    ->where('name', 'LIKE', '%'.$search.'%')
+                    ->get()
+                ),
+                'amount' => $amount,
+            ];
 
-            } catch(\Exception $e) {
+        } catch(\Exception $e) {
 
-                // Get error message
-                $errorMessage = $e->getMessage();
-
-            }
+            // Get error message
+            $errorMessage = $e->getMessage();
 
         }
 
@@ -216,6 +215,12 @@ class TaskController extends Controller
 
         // Get post data
         $postData = $request->request->all();
+
+        // Set validation rules
+        $request->validate([
+            'name' => 'required',
+            'description' => 'required'
+        ]);
 
         // Get user
         $user = Auth::user();
@@ -265,39 +270,39 @@ class TaskController extends Controller
         // Get post data
         $postData = $request->request->all();
 
-        // Check if postData is not empty
-        if(!empty($postData) && array_key_exists('toggle', $postData)) {
+        // Set validation rules
+        $request->validate([
+            'toggle' => 'required',
+        ]);
 
-            // Get toggle
-            $toggle = $postData['toggle'];
+        // Get toggle
+        $toggle = $postData['toggle'];
 
-            // Get status
-            $status = $toggle === 'true' ? 'new' : 'done';
+        // Get status
+        $status = $toggle === 'true' ? 'new' : 'done';
 
-            // Get user
-            $user = Auth::user();
+        // Get user
+        $user = Auth::user();
 
-            // Get task by identifier
-            $instance = Task::query()->where('identifier', $identifier)->first();
+        // Get task by identifier
+        $instance = Task::query()->where('identifier', $identifier)->first();
 
-            // Check if instance is instance of Task model
-            if($instance instanceof Task && $instance['user_id'] === $user['id']) {
+        // Check if instance is instance of Task model
+        if($instance instanceof Task && $instance['user_id'] === $user['id']) {
 
-                // Try catch
-                try {
+            // Try catch
+            try {
 
-                    // Update task
-                    Task::query()->where('id', $instance['id'])->update(['status' => $status]);
+                // Update task
+                Task::query()->where('id', $instance['id'])->update(['status' => $status]);
 
-                    // Set success
-                    $success = true;
+                // Set success
+                $success = true;
 
-                } catch(\Exception $e) {
+            } catch(\Exception $e) {
 
-                    // Get error message
-                    $errorMessage = $e->getMessage();
-
-                }
+                // Get error message
+                $errorMessage = $e->getMessage();
 
             }
 
@@ -320,6 +325,11 @@ class TaskController extends Controller
 
         // Get post data
         $postData = $request->request->all();
+
+        // Set validation rules
+        $request->validate([
+            'identifier' => 'required',
+        ]);
 
         // Get user
         $user = Auth::user();
@@ -397,11 +407,13 @@ class TaskController extends Controller
     public function orderTasks(Request $request)
     {
 
-        // Get user
-        $user = Auth::user();
-
         // Get post data
         $postData = $request->request->all();
+
+        // Set validation rules
+        $request->validate([
+            'task' => 'required',
+        ]);
 
         // Get identifiers from request
         $identifiers = $postData['task'];
